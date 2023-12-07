@@ -24,7 +24,7 @@ pipeline {
         SONAR_URL = "http://3.128.172.131:9000/"
       }
       steps {
-        withCredentials([string(credentialsId: 'sonarqube_cred	', variable: 'SONAR_AUTH_TOKEN')]) {
+        withCredentials([string(credentialsId: 'sonar_jenkins	', variable: 'SONAR_AUTH_TOKEN')]) {
           sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
         }
       }
@@ -33,13 +33,13 @@ pipeline {
       environment {
         DOCKER_IMAGE = "egbedi7/ultimate-cicd:${BUILD_NUMBER}"
         // DOCKERFILE_LOCATION = "java-maven-sonar-argocd-helm-k8s/spring-boot-app/Dockerfile"
-        REGISTRY_CREDENTIALS = credentials('Dockerhub_cred')
+        REGISTRY_CREDENTIALS = credentials('Docker_cred')
       }
       steps {
         script {
             sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && docker build -t ${DOCKER_IMAGE} .'
             def dockerImage = docker.image("${DOCKER_IMAGE}")
-            docker.withRegistry( 'https://registry.hub.docker.com', "Dockerhub_cred") {
+            docker.withRegistry( 'https://registry.hub.docker.com', "Docker_cred") {
                 dockerImage.push()
             }
         }
@@ -54,7 +54,7 @@ pipeline {
             withCredentials([string(credentialsId: 'Github_cred', variable: 'GITHUB_TOKEN')]) {
                 sh '''
                     git config user.email "imadeunity@icloud.com"
-                    git config user.name "Egbedi snr"
+                    git config user.name "Egbedi"
                     BUILD_NUMBER=${BUILD_NUMBER}
                     sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
                     git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
