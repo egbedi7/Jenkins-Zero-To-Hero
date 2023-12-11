@@ -24,14 +24,14 @@ pipeline {
         SONAR_URL = "http://3.12.162.93:9000/"
       }
       steps {
-        withCredentials([string(credentialsId: 'SonarQube_cred', variable: 'SONAR_AUTH_TOKEN')]) {
+        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
           sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
         }
       }
     }
     stage('Build and Push Docker Image') {
       environment {
-        DOCKER_IMAGE = "abhishekf5/ultimate-cicd:${BUILD_NUMBER}"
+        DOCKER_IMAGE = "egbedi7/ultimate-cicd:${BUILD_NUMBER}"
         // DOCKERFILE_LOCATION = "java-maven-sonar-argocd-helm-k8s/spring-boot-app/Dockerfile"
         REGISTRY_CREDENTIALS = credentials('Docker_cred')
       }
@@ -51,7 +51,7 @@ pipeline {
             GIT_USER_NAME = "egbedi7"
         }
         steps {
-            withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
+            withCredentials([string(credentialsId: 'Github_cred', variable: 'GITHUB_TOKEN')]) {
                 sh '''
                     git config user.email "imadeunity@icloud.com"
                     git config user.name "Egbedi"
